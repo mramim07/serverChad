@@ -7,6 +7,9 @@ const { Server } = require("socket.io");
 
 require('dotenv').config({ path: 'secretcode.env' });  // ← Loads secretcode.env
 
+// FIX 1: Tells the app to use your Environment Variables for the secret
+const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret_key_123";
+
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
@@ -16,10 +19,6 @@ app.use(express.static("public"));
 
 const USERS_FILE = "users.json";
 const CHAT_FILE = "chat.json";
-
-// Load JWT_SECRET from secretcode.env
-// If the variable is missing → fallback to hardcoded value (for safety during development)
-const JWT_SECRET = process.env.JWT_SECRET || "kX9pQvT3mW8rZ2fL5jH7nB4cY6aD1eR0tG2uI8oPqS";
 
 // Load users
 let users = fs.existsSync(USERS_FILE)
@@ -122,7 +121,10 @@ io.on("connection", (socket) => {
   });
 });
 
+// FIX 2: Allows Render to assign its own port, otherwise falls back to 3000 locally
+const PORT = process.env.PORT || 3000;
+
 // Start server
-server.listen(3000, "0.0.0.0", () => {
-  console.log("Server running at http://localhost:3000");
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT}`);
 });
